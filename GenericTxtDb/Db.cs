@@ -14,7 +14,7 @@ namespace GenericTxtDb
 
         public Db()
         {
-            this.DbFactory(Settings.DBPath, Settings.DEFAULT_TABLEFILESEPARATOR);
+            this.DbFactory("Db", Settings.DEFAULT_TABLEFILESEPARATOR);
         }
 
         public Db(string dbPath)
@@ -29,47 +29,48 @@ namespace GenericTxtDb
 
         private void DbFactory(string dbPath, string tableFileSeparator)
         {
-            this.DbFolder = new Folder(dbPath);
+            this.DbFolder = Directory.Exists(dbPath) ? new Folder(dbPath) : null;
             this.ListFiles = new List<ListFile>();
             this.KeyValuePairFiles = new List<KeyValuePairFile>();
             this.TableFiles = new List<TableFile>();
 
             {// Identify file type by looking at its data and checking the first 5 lines.
-                foreach (string file in this.DbFolder.Files)
-                {
-                    IDictionary<FileType, bool> fileTypePossibility = new Dictionary<FileType, bool>()
+                if (this.DbFolder != null)
+                    foreach (string file in this.DbFolder.Files)
                     {
-                        { FileType.List, true },
-                        { FileType.KeyValuePair, true },
-                        { FileType.Table, true }
-                    };
-
-                    string filename = Path.GetFileName(file);
-                    ListFile unidentifiedFile = new ListFile(filename);
-                    if (unidentifiedFile.Data.Length > 0)
-                    {
-                        int linesToCheck = unidentifiedFile.Data.Length < 5 ? unidentifiedFile.Data.Length : 5;
-                        for (int i = 0; i < linesToCheck; i++)
+                        IDictionary<FileType, bool> fileTypePossibility = new Dictionary<FileType, bool>()
                         {
-                            if (!unidentifiedFile.Data[i].Contains('='))
-                                fileTypePossibility[FileType.KeyValuePair] = false;
-                            if (!unidentifiedFile.Data[i].Contains(tableFileSeparator))
-                                fileTypePossibility[FileType.Table] = false;
-                        }
-                    }
-                    else
-                    {
-                        fileTypePossibility[FileType.KeyValuePair] = false;
-                        fileTypePossibility[FileType.Table] = false;
-                    }
+                            { FileType.List, true },
+                            { FileType.KeyValuePair, true },
+                            { FileType.Table, true }
+                        };
 
-                    if (fileTypePossibility[FileType.Table])
-                        this.TableFiles.Add(new TableFile(filename));
-                    else if (fileTypePossibility[FileType.KeyValuePair])
-                        this.KeyValuePairFiles.Add(new KeyValuePairFile(filename));
-                    else
-                        this.ListFiles.Add(unidentifiedFile);
-                }
+                        string filename = Path.GetFileName(file);
+                        ListFile unidentifiedFile = new ListFile(filename);
+                        if (unidentifiedFile.Data.Length > 0)
+                        {
+                            int linesToCheck = unidentifiedFile.Data.Length < 5 ? unidentifiedFile.Data.Length : 5;
+                            for (int i = 0; i < linesToCheck; i++)
+                            {
+                                if (!unidentifiedFile.Data[i].Contains('='))
+                                    fileTypePossibility[FileType.KeyValuePair] = false;
+                                if (!unidentifiedFile.Data[i].Contains(tableFileSeparator))
+                                    fileTypePossibility[FileType.Table] = false;
+                            }
+                        }
+                        else
+                        {
+                            fileTypePossibility[FileType.KeyValuePair] = false;
+                            fileTypePossibility[FileType.Table] = false;
+                        }
+
+                        if (fileTypePossibility[FileType.Table])
+                            this.TableFiles.Add(new TableFile(filename));
+                        else if (fileTypePossibility[FileType.KeyValuePair])
+                            this.KeyValuePairFiles.Add(new KeyValuePairFile(filename));
+                        else
+                            this.ListFiles.Add(unidentifiedFile);
+                    }
             }
         }
     }

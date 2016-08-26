@@ -223,6 +223,13 @@ namespace Tests
         #region Db
 
         [TestMethod]
+        public void CanInitializeDefaultDb()
+        {
+            Db db = new Db();
+            Assert.IsNotNull(db);
+        }
+
+        [TestMethod]
         public void DbGetsFiles()
         {
             Db db = new Db(Constants.TestData.DBPATH);

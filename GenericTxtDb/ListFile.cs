@@ -13,8 +13,6 @@ namespace GenericTxtDb
 
         public ListFile(string fileName)
         {
-            if (string.IsNullOrEmpty(Settings.DBPath))
-                Settings.DBPath = "Db";
             this.FilePath = string.Concat(Settings.DBPath, Path.DirectorySeparatorChar, fileName);
             this.Exists = File.Exists(this.FilePath);
             this.Data = (this.Exists) ? this.Data = File.ReadAllLines(this.FilePath, Encoding.Default) : null;
