@@ -232,10 +232,12 @@ namespace Tests
         [TestMethod]
         public void CanCreateDefaultDbWhenDbDoesNotExistUsingTryInitializeFlag()
         {
-            Db db = new Db(false);
-            Assert.IsFalse(db.Initialized);
-            db = new Db(true);
-            Assert.IsTrue(db.Initialized);
+            Db db1 = new Db(false);
+            Assert.IsFalse(db1.Initialized);
+            Db db2 = new Db(true);
+            Assert.IsTrue(db2.Initialized);
+            Db db3 = new Db(true);
+            Assert.IsTrue(db3.Initialized);
         }
 
         [TestMethod]
