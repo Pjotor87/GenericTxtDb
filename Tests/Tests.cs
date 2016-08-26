@@ -220,6 +220,22 @@ namespace Tests
 
         #endregion
 
+        #region Db
+
+        [TestMethod]
+        public void DbGetsFiles()
+        {
+            Db db = new Db(Constants.TestData.DBPATH);
+            int expectedListFiles = 2;
+            Assert.AreEqual(expectedListFiles, db.ListFiles.Count);
+            int expectedKeyValuePairFiles = 2;
+            Assert.AreEqual(expectedKeyValuePairFiles, db.KeyValuePairFiles.Count);
+            int expectedTableFiles = 2;
+            Assert.AreEqual(expectedTableFiles, db.TableFiles.Count);
+        }
+
+        #endregion
+
         #region Cleanup
 
         [TestCleanup]

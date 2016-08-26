@@ -30,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FileTree">
+      <HintPath>..\..\..\..\Builds\_Libs_\FileTree.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -40,6 +43,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Db.cs" />
+    <Compile Include="FileType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ListFile.cs" />
     <Compile Include="KeyValuePairFile.cs" />
