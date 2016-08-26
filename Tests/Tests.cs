@@ -223,10 +223,19 @@ namespace Tests
         #region Db
 
         [TestMethod]
-        public void CanInitializeDefaultDb()
+        public void CanInitializeDefaultDbWhenDbDoesNotExist()
         {
             Db db = new Db();
             Assert.IsNotNull(db);
+        }
+
+        [TestMethod]
+        public void CanCreateDefaultDbWhenDbDoesNotExistUsingTryInitializeFlag()
+        {
+            Db db = new Db(false);
+            Assert.IsFalse(db.Initialized);
+            db = new Db(true);
+            Assert.IsTrue(db.Initialized);
         }
 
         [TestMethod]
@@ -250,6 +259,10 @@ namespace Tests
         {
             Settings.SetDBPath(Constants.TestData.DBPATH);
             Directory.Delete(Constants.TestData.DBPATH, true);
+
+            string dbPath = new Db().DBPath;
+            if (Directory.Exists(dbPath))
+                Directory.Delete(dbPath);
         }
 
         #endregion

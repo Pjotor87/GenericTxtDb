@@ -2,34 +2,68 @@
 using System.Linq;
 using FileTree;
 using System.IO;
+using System;
 
 namespace GenericTxtDb
 {
     public class Db
     {
-        public Folder DbFolder { get; set; }
+        private Folder DbFolder { get; set; }
+        public string DBPath { get; private set; }
+        public bool Initialized { get; set; }
         public IList<ListFile> ListFiles { get; set; }
         public IList<KeyValuePairFile> KeyValuePairFiles { get; set; }
         public IList<TableFile> TableFiles { get; set; }
 
         public Db()
         {
-            this.DbFactory("Db", Settings.DEFAULT_TABLEFILESEPARATOR);
+            this.DbFactory("Db", Settings.DEFAULT_TABLEFILESEPARATOR, false);
+        }
+
+        public Db(bool tryInitialize)
+        {
+            this.DbFactory("Db", Settings.DEFAULT_TABLEFILESEPARATOR, tryInitialize);
         }
 
         public Db(string dbPath)
         {
-            this.DbFactory(dbPath, Settings.DEFAULT_TABLEFILESEPARATOR);
+            this.DbFactory(dbPath, Settings.DEFAULT_TABLEFILESEPARATOR, false);
+        }
+
+        public Db(string dbPath, bool tryInitialize)
+        {
+            this.DbFactory(dbPath, Settings.DEFAULT_TABLEFILESEPARATOR, tryInitialize);
         }
 
         public Db(string dbPath, string tableFileSeparator)
         {
-            this.DbFactory(dbPath, tableFileSeparator);
+            this.DbFactory(dbPath, tableFileSeparator, false);
         }
 
-        private void DbFactory(string dbPath, string tableFileSeparator)
+        public Db(string dbPath, string tableFileSeparator, bool tryInitialize)
         {
-            this.DbFolder = Directory.Exists(dbPath) ? new Folder(dbPath) : null;
+            this.DbFactory(dbPath, tableFileSeparator, tryInitialize);
+        }
+
+        private void DbFactory(string dbPath, string tableFileSeparator, bool tryInitialize)
+        {
+            this.DBPath = dbPath;
+            this.DbFolder = Directory.Exists(this.DBPath) ? new Folder(this.DBPath) : null;
+            this.Initialized = this.DbFolder != null;
+            if (!this.Initialized && tryInitialize)
+                try
+                {
+                    Directory.CreateDirectory(this.DBPath);
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+                finally
+                {
+                    this.DbFolder = Directory.Exists(this.DBPath) ? new Folder(this.DBPath) : null;
+                    this.Initialized = this.DbFolder != null;
+                }
             this.ListFiles = new List<ListFile>();
             this.KeyValuePairFiles = new List<KeyValuePairFile>();
             this.TableFiles = new List<TableFile>();
