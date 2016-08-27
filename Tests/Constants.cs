@@ -53,7 +53,7 @@ namespace Tests
                         ).ToArray();
                 }
             }
-
+            
             internal const string DBNAME = "Db";
             internal static string DBPATH
             {
@@ -66,6 +66,21 @@ namespace Tests
                             Path.DirectorySeparatorChar, 
                             DBNAME
                         );
+                }
+            }
+            internal static string[] DBFILEPATHS
+            {
+                get
+                {
+                    return
+                        FILENAMES.Select(
+                            x =>
+                            string.Concat(
+                                DBPATH,
+                                Path.DirectorySeparatorChar,
+                                x
+                            )
+                        ).ToArray();
                 }
             }
 

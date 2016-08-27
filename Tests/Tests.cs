@@ -13,7 +13,6 @@ namespace Tests
         [TestInitialize]
         public void TestdataExists()
         {
-            Settings.SetDBPath(Constants.TestData.DBPATH);
             // TestdataExists
             foreach (string filepath in Constants.TestData.FILEPATHS)
                 Assert.IsTrue(File.Exists(filepath));
@@ -47,9 +46,9 @@ namespace Tests
         {
             foreach (string filename in Constants.TestData.FILENAMES)
             {
-                ListFile file = new ListFile(filename);
+                ListFile file = new ListFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, filename));
                 Assert.IsTrue(file.Exists);
-                ListFile tempfile = new ListFile(string.Concat(Constants.TestData.TEMPFILENAME_PREFIX, filename));
+                ListFile tempfile = new ListFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, Constants.TestData.TEMPFILENAME_PREFIX, filename));
                 Assert.IsTrue(tempfile.Exists);
             }
         }
@@ -62,7 +61,7 @@ namespace Tests
         public void ListLine1Matches()
         {
             string expected = "One value";
-            ListFile file = new ListFile(Constants.TestData.LIST_FILENAME);
+            ListFile file = new ListFile(string.Concat(Constants.TestData.DBFILEPATHS[0]));
             Assert.AreEqual(expected, file.Data[0]);
         }
 
@@ -70,7 +69,7 @@ namespace Tests
         public void ListLine2Matches()
         {
             string expected = "Another value";
-            ListFile file = new ListFile(Constants.TestData.LIST_FILENAME);
+            ListFile file = new ListFile(string.Concat(Constants.TestData.DBFILEPATHS[0]));
             Assert.AreEqual(expected, file.Data[1]);
         }
 
@@ -78,7 +77,7 @@ namespace Tests
         public void ListLine3Matches()
         {
             string expected = "           A third value with leading and trailing whitespace            ";
-            ListFile file = new ListFile(Constants.TestData.LIST_FILENAME);
+            ListFile file = new ListFile(string.Concat(Constants.TestData.DBFILEPATHS[0]));
             Assert.AreEqual(expected, file.Data[2]);
         }
 
@@ -90,7 +89,7 @@ namespace Tests
         public void KeyValuePairLine1Matches()
         {
             string expectedLine = "\"One key\"=\"One value\"";
-            KeyValuePairFile file = new KeyValuePairFile(Constants.TestData.KEYVALUEPAIR_FILENAME);
+            KeyValuePairFile file = new KeyValuePairFile(string.Concat(Constants.TestData.DBFILEPATHS[1]));
             Assert.AreEqual(expectedLine, file.Data[0]);
             string expectedKey = "One key";
             Assert.AreEqual(expectedKey, file.KeyValuePairs[0].Key);
@@ -102,7 +101,7 @@ namespace Tests
         public void KeyValuePairLine2Matches()
         {
             string expectedLine = "Another key\"=Another value";
-            KeyValuePairFile file = new KeyValuePairFile(Constants.TestData.KEYVALUEPAIR_FILENAME);
+            KeyValuePairFile file = new KeyValuePairFile(string.Concat(Constants.TestData.DBFILEPATHS[1]));
             Assert.AreEqual(expectedLine, file.Data[1]);
             string expectedKey = "Another key";
             Assert.AreEqual(expectedKey, file.KeyValuePairs[1].Key);
@@ -114,7 +113,7 @@ namespace Tests
         public void KeyValuePairLine3Matches()
         {
             string expectedLine = "A third key=A third value";
-            KeyValuePairFile file = new KeyValuePairFile(Constants.TestData.KEYVALUEPAIR_FILENAME);
+            KeyValuePairFile file = new KeyValuePairFile(string.Concat(Constants.TestData.DBFILEPATHS[1]));
             Assert.AreEqual(expectedLine, file.Data[2]);
             string expectedKey = "A third key";
             Assert.AreEqual(expectedKey, file.KeyValuePairs[2].Key);
@@ -126,7 +125,7 @@ namespace Tests
         public void KeyValuePairLine4Matches()
         {
             string expectedLine = "\"A fourth\" ke\"y\"=\"A fourth value\"\"";
-            KeyValuePairFile file = new KeyValuePairFile(Constants.TestData.KEYVALUEPAIR_FILENAME);
+            KeyValuePairFile file = new KeyValuePairFile(string.Concat(Constants.TestData.DBFILEPATHS[1]));
             Assert.AreEqual(expectedLine, file.Data[3]);
             string expectedKey = "A fourth\" ke\"y";
             Assert.AreEqual(expectedKey, file.KeyValuePairs[3].Key);
@@ -138,7 +137,7 @@ namespace Tests
         public void KeyValuePairLine5Matches()
         {
             string expectedLine = "A fifth= key=A fifth= value";
-            KeyValuePairFile file = new KeyValuePairFile(Constants.TestData.KEYVALUEPAIR_FILENAME);
+            KeyValuePairFile file = new KeyValuePairFile(string.Concat(Constants.TestData.DBFILEPATHS[1]));
             Assert.AreEqual(expectedLine, file.Data[4]);
             foreach (KeyValuePair<string, string> kvPair in file.KeyValuePairs)
                 if (kvPair.Key.Contains("fifth"))
@@ -149,7 +148,7 @@ namespace Tests
         public void KeyValuePairLine6Matches()
         {
             string expectedLine = "\"A sixth= key\"=\"A sixth val=ue\"";
-            KeyValuePairFile file = new KeyValuePairFile(Constants.TestData.KEYVALUEPAIR_FILENAME);
+            KeyValuePairFile file = new KeyValuePairFile(string.Concat(Constants.TestData.DBFILEPATHS[1]));
             Assert.AreEqual(expectedLine, file.Data[5]);
             string expectedKey = "A sixth= key";
             Assert.AreEqual(expectedKey, file.KeyValuePairs[4].Key);
@@ -161,29 +160,29 @@ namespace Tests
         public void CanAddAndRemoveNewEntryInKeyValuePairFile()
         {
             KeyValuePair<string, string> newEntry = new KeyValuePair<string, string>("UnitTestKey", "UnitTestValue");
-            KeyValuePairFile tempFile = new KeyValuePairFile(string.Concat(Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.KEYVALUEPAIR_FILENAME));
+            KeyValuePairFile tempFile = new KeyValuePairFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.KEYVALUEPAIR_FILENAME));
             {// ADD ENTRY
                 Assert.IsFalse(tempFile.KeyValuePairs.Contains(newEntry));
                 tempFile.Add(newEntry);
                 Assert.IsTrue(tempFile.KeyValuePairs.Contains(newEntry));
             }
             {// COMMIT
-                KeyValuePairFile tempFile2 = new KeyValuePairFile(string.Concat(Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.KEYVALUEPAIR_FILENAME));
+                KeyValuePairFile tempFile2 = new KeyValuePairFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.KEYVALUEPAIR_FILENAME));
                 Assert.IsFalse(tempFile2.KeyValuePairs.Contains(newEntry));
                 tempFile.Commit();
                 Assert.IsTrue(tempFile.KeyValuePairs.Contains(newEntry));
-                KeyValuePairFile tempFile3 = new KeyValuePairFile(string.Concat(Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.KEYVALUEPAIR_FILENAME));
+                KeyValuePairFile tempFile3 = new KeyValuePairFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.KEYVALUEPAIR_FILENAME));
                 Assert.IsTrue(tempFile3.KeyValuePairs.Contains(newEntry));
             }
             {// REMOVE ENTRY
-                KeyValuePairFile tempFile4 = new KeyValuePairFile(string.Concat(Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.KEYVALUEPAIR_FILENAME));
+                KeyValuePairFile tempFile4 = new KeyValuePairFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.KEYVALUEPAIR_FILENAME));
                 Assert.IsTrue(tempFile4.KeyValuePairs.Contains(newEntry));
                 tempFile4.Remove(newEntry);
                 Assert.IsFalse(tempFile4.KeyValuePairs.Contains(newEntry));
-                KeyValuePairFile tempFile5 = new KeyValuePairFile(string.Concat(Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.KEYVALUEPAIR_FILENAME));
+                KeyValuePairFile tempFile5 = new KeyValuePairFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.KEYVALUEPAIR_FILENAME));
                 Assert.IsTrue(tempFile5.KeyValuePairs.Contains(newEntry));
                 tempFile4.Commit();
-                KeyValuePairFile tempFile6 = new KeyValuePairFile(string.Concat(Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.KEYVALUEPAIR_FILENAME));
+                KeyValuePairFile tempFile6 = new KeyValuePairFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.KEYVALUEPAIR_FILENAME));
                 Assert.IsFalse(tempFile6.KeyValuePairs.Contains(newEntry));
             }
         }
@@ -196,7 +195,7 @@ namespace Tests
         public void TableLine1Matches()
         {
             string expectedLine = "\"FirstRowValue1\"|!|\"FirstRowValue2\"|!|\"FirstRowValue3\"";
-            TableFile file = new TableFile(Constants.TestData.TABLE_FILENAME);
+            TableFile file = new TableFile(string.Concat(Constants.TestData.DBFILEPATHS[2]));
             Assert.AreEqual(expectedLine, file.Data[0]);
 
             IList<string> expectedCellValues = new List<string> { "FirstRowValue1", "FirstRowValue2", "FirstRowValue3" };
@@ -209,7 +208,7 @@ namespace Tests
         public void TableLine2Matches()
         {
             string expectedLine = "\"SecondRowValue1\"|!|\"SecondRowValue2\"|!|\"SecondRowValue3\"";
-            TableFile file = new TableFile(Constants.TestData.TABLE_FILENAME);
+            TableFile file = new TableFile(string.Concat(Constants.TestData.DBFILEPATHS[2]));
             Assert.AreEqual(expectedLine, file.Data[1]);
 
             IList<string> expectedCellValues = new List<string> { "SecondRowValue1", "SecondRowValue2", "SecondRowValue3" };
@@ -241,14 +240,15 @@ namespace Tests
         }
 
         [TestMethod]
-        public void DbGetsFiles()
+        public void DbIdentifiesFiles()
         {
             Db db = new Db(Constants.TestData.DBPATH);
             int expectedListFiles = 2;
-            Assert.AreEqual(expectedListFiles, db.ListFiles.Count);
             int expectedKeyValuePairFiles = 2;
-            Assert.AreEqual(expectedKeyValuePairFiles, db.KeyValuePairFiles.Count);
             int expectedTableFiles = 2;
+            Assert.IsFalse(db.ListFiles.Count == expectedListFiles + expectedKeyValuePairFiles + expectedTableFiles);
+            Assert.AreEqual(expectedListFiles, db.ListFiles.Count);
+            Assert.AreEqual(expectedKeyValuePairFiles, db.KeyValuePairFiles.Count);
             Assert.AreEqual(expectedTableFiles, db.TableFiles.Count);
         }
 
@@ -259,7 +259,6 @@ namespace Tests
         [TestCleanup]
         public void RemoveDB()
         {
-            Settings.SetDBPath(Constants.TestData.DBPATH);
             Directory.Delete(Constants.TestData.DBPATH, true);
 
             string dbPath = new Db().DBPath;

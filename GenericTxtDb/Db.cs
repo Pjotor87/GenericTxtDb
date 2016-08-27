@@ -49,66 +49,73 @@ namespace GenericTxtDb
         {
             if (string.IsNullOrEmpty(tableFileSeparator))
                 tableFileSeparator = "|!|";
+
             this.DBPath = dbPath;
             this.DbFolder = Directory.Exists(this.DBPath) ? new Folder(this.DBPath) : null;
             this.Initialized = this.DbFolder != null;
             if (!this.Initialized && tryInitialize)
-                try
-                {
-                    Directory.CreateDirectory(this.DBPath);
-                }
-                catch (Exception)
-                {
-                    throw;
-                }
-                finally
-                {
-                    this.DbFolder = Directory.Exists(this.DBPath) ? new Folder(this.DBPath) : null;
-                    this.Initialized = this.DbFolder != null;
-                }
+                TryInitialize();
+
             this.ListFiles = new List<ListFile>();
             this.KeyValuePairFiles = new List<KeyValuePairFile>();
             this.TableFiles = new List<TableFile>();
-            
-            {// Identify file type by looking at its data and checking the first 5 lines.
-                if (this.DbFolder != null)
-                    foreach (string file in this.DbFolder.Files)
-                    {
-                        IDictionary<FileType, bool> fileTypePossibility = new Dictionary<FileType, bool>()
-                        {
-                            { FileType.List, true },
-                            { FileType.KeyValuePair, true },
-                            { FileType.Table, true }
-                        };
+            if (this.DbFolder != null)
+                foreach (string file in this.DbFolder.Files)
+                    IdentifyFileTypeAndAddToList(tableFileSeparator, file);
+        }
 
-                        string filename = Path.GetFileName(file);
-                        ListFile unidentifiedFile = new ListFile(filename);
-
-                        if (unidentifiedFile.Data != null && unidentifiedFile.Data.Length > 0)
-                        {
-                            int linesToCheck = unidentifiedFile.Data.Length < 5 ? unidentifiedFile.Data.Length : 5;
-                            for (int i = 0; i < linesToCheck; i++)
-                            {
-                                if (!unidentifiedFile.Data[i].Contains('='))
-                                    fileTypePossibility[FileType.KeyValuePair] = false;
-                                if (!unidentifiedFile.Data[i].Contains(tableFileSeparator))
-                                    fileTypePossibility[FileType.Table] = false;
-                            }
-                        }
-                        else
-                        {
-                            fileTypePossibility[FileType.KeyValuePair] = false;
-                            fileTypePossibility[FileType.Table] = false;
-                        }
-                        
-                        if (fileTypePossibility[FileType.Table])
-                            this.TableFiles.Add(new TableFile(filename));
-                        else if (fileTypePossibility[FileType.KeyValuePair])
-                            this.KeyValuePairFiles.Add(new KeyValuePairFile(filename));
-                        else
-                            this.ListFiles.Add(unidentifiedFile);
-                    }
+        private void TryInitialize()
+        {
+            try
+            {
+                Directory.CreateDirectory(this.DBPath);
             }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                this.DbFolder = Directory.Exists(this.DBPath) ? new Folder(this.DBPath) : null;
+                this.Initialized = this.DbFolder != null;
+            }
+        }
+
+        private void IdentifyFileTypeAndAddToList(string tableFileSeparator, string filePath)
+        {
+            // Identify file type by looking at its data and checking the first 5 lines.
+            IDictionary<FileType, bool> fileTypePossibility = new Dictionary<FileType, bool>()
+            {
+                { FileType.List, true },
+                { FileType.KeyValuePair, true },
+                { FileType.Table, true }
+            };
+            
+            ListFile unidentifiedFile = new ListFile(filePath);
+
+            if (unidentifiedFile.Data != null && unidentifiedFile.Data.Length > 0)
+            {
+                int linesToCheck = unidentifiedFile.Data.Length < 5 ? unidentifiedFile.Data.Length : 5;
+                for (int i = 0; i < linesToCheck; i++)
+                {
+                    if (!unidentifiedFile.Data[i].Contains('='))
+                        fileTypePossibility[FileType.KeyValuePair] = false;
+                    if (!unidentifiedFile.Data[i].Contains(tableFileSeparator))
+                        fileTypePossibility[FileType.Table] = false;
+                }
+            }
+            else
+            {
+                fileTypePossibility[FileType.KeyValuePair] = false;
+                fileTypePossibility[FileType.Table] = false;
+            }
+
+            if (fileTypePossibility[FileType.Table])
+                this.TableFiles.Add(new TableFile(filePath));
+            else if (fileTypePossibility[FileType.KeyValuePair])
+                this.KeyValuePairFiles.Add(new KeyValuePairFile(filePath));
+            else
+                this.ListFiles.Add(unidentifiedFile);
         }
     }
 }

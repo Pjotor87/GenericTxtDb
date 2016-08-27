@@ -10,7 +10,7 @@ namespace GenericTxtDb
         public string Separator { get; private set; }
         public IList<IList<string>> TableRows { get; set; }
 
-        public TableFile(string fileName) : base(fileName)
+        public TableFile(string filePath) : base(filePath)
         {
             this.Separator = "|!|";
             this.TableRows = new List<IList<string>>();

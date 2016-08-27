@@ -11,9 +11,9 @@ namespace GenericTxtDb
         public string FilePath { get; private set; }
         public string[] Data { get; private set; }
 
-        public ListFile(string fileName)
+        public ListFile(string filePath)
         {
-            this.FilePath = string.Concat(Settings.DBPath, Path.DirectorySeparatorChar, fileName);
+            this.FilePath = filePath;
             this.Exists = File.Exists(this.FilePath);
             this.Data = (this.Exists) ? this.Data = File.ReadAllLines(this.FilePath, Encoding.Default) : null;
         }

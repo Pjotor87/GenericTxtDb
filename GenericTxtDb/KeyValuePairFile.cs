@@ -8,7 +8,7 @@ namespace GenericTxtDb
     {
         public IList<KeyValuePair<string, string>> KeyValuePairs { get; private set; }
 
-        public KeyValuePairFile(string fileName) : base(fileName)
+        public KeyValuePairFile(string filePath) : base(filePath)
         {
             this.KeyValuePairs = new List<KeyValuePair<string, string>>();
             foreach (string line in this.Data)
