@@ -1,10 +1,11 @@
 # GenericTxtDb
 A tiny C# library for working with .txt files as a database. Useful for most lightweight windows apps.
 
-This library can be used to interact with .txt files as a database. Build this project in Visual Studio and grab the .dll from the bin\Release folder.
+This library can be used to interact with .txt files as a database. Build this project in Visual Studio and add a reference to the .dll in the bin\Release folder.
 
 How to
 ------
+Create an instance of the "Db" class and use that object for doing all operations.
 ___
 Use the "ListFile" class when working with .txt files that looks like this:
 ```
