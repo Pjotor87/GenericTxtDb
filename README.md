@@ -6,10 +6,9 @@ The database this library interacts with is
 - a directory somewhere on the filesystem.
 - .txt files at the root level of that directory.
 
-Build this project in Visual Studio and add a reference to the .dll in the bin\Release folder.
-
 How to
 ------
+Build this project in Visual Studio and add a reference to the .dll in the bin\Release folder.
 Create an instance of the "Db" class and use that object for doing all database operations.
 ___
 Use the "ListFile" class when working with .txt files that looks like this:
