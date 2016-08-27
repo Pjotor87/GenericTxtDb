@@ -1,0 +1,3 @@
+﻿One value
+Another value
+           A third value with leading and trailing whitespace            

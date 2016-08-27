@@ -1,0 +1,6 @@
+﻿"One key"="One value"
+Another key"=Another value
+A third key=A third value
+"A fourth" ke"y"="A fourth value""
+A fifth= key=A fifth= value
+"A sixth= key"="A sixth val=ue"

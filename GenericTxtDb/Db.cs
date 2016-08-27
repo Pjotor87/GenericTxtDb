@@ -3,6 +3,7 @@ using System.Linq;
 using FileTree;
 using System.IO;
 using System;
+using Microsoft.VisualBasic;
 
 namespace GenericTxtDb
 {
@@ -115,6 +116,26 @@ namespace GenericTxtDb
                 this.KeyValuePairFiles.Add(new KeyValuePairFile(filePath));
             else
                 this.ListFiles.Add(unidentifiedFile);
+        }
+
+        public void CreateDbBackup()
+        {
+            CreateDbBackup(string.Concat(Path.GetDirectoryName(this.DBPath), Path.DirectorySeparatorChar, "DB_Backups"));
+        }
+
+        public void CreateDbBackup(string backupDirectoryPath)
+        {
+            string x = Path.GetDirectoryName(backupDirectoryPath);
+            new Microsoft.VisualBasic.Devices.Computer().FileSystem.CopyDirectory(
+                this.DBPath,
+                string.Concat(
+                    backupDirectoryPath, 
+                    Path.DirectorySeparatorChar, 
+                    Path.GetFileNameWithoutExtension(this.DBPath), 
+                    "_-_", 
+                    DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss")
+                )
+            );
         }
     }
 }

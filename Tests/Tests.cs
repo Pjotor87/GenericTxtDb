@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using GenericTxtDb;
 using System.Collections.Generic;
+using FileTree;
 
 namespace Tests
 {
@@ -264,11 +265,14 @@ namespace Tests
         public void CanCreateDefaultDbWhenDbDoesNotExistUsingTryInitializeFlag()
         {
             Db db1 = new Db(false);
-            Assert.IsFalse(db1.Initialized);
-            Db db2 = new Db(true);
-            Assert.IsTrue(db2.Initialized);
+            if (db1.Initialized)
+                Directory.Delete(db1.DBPath, true);
+            Db db2 = new Db(false);
+            Assert.IsFalse(db2.Initialized);
             Db db3 = new Db(true);
             Assert.IsTrue(db3.Initialized);
+            Db db4 = new Db(true);
+            Assert.IsTrue(db4.Initialized);
         }
 
         [TestMethod]
@@ -284,6 +288,49 @@ namespace Tests
             Assert.AreEqual(expectedTableFiles, db.TableFiles.Count);
         }
 
+        [TestMethod]
+        public void CanCreateDbBackupUsingCustomPath()
+        {
+            Db db = new Db(Constants.TestData.DBPATH);
+            int expectedFileCount = (db.ListFiles.Count + db.KeyValuePairFiles.Count + db.TableFiles.Count);
+            Assert.IsTrue(expectedFileCount > 0);
+            db.CreateDbBackup(Constants.TestData.DBBACKUPPATH);
+            Assert.IsTrue(Directory.Exists(Constants.TestData.DBBACKUPPATH));
+            Folder folder = new Folder(Constants.TestData.DBBACKUPPATH);
+            Assert.IsTrue(folder.HasSubFolders);
+            int expectedFolderCount = 1;
+            Assert.AreEqual(expectedFolderCount, folder.SubFolders.Count);
+            int actualFileCount = 0;
+            foreach (var subfolder in folder.SubFolders)
+            {
+                Assert.IsTrue(subfolder.HasFiles);
+                foreach (var file in subfolder.Files)
+                    actualFileCount++;
+            }
+            Assert.AreEqual(expectedFileCount, actualFileCount);
+        }
+
+        [TestMethod]
+        public void CanCreateDbBackupUsingDefaultPath()
+        {
+            Db db = new Db(Constants.TestData.DBPATH);
+            int expectedFileCount = (db.ListFiles.Count + db.KeyValuePairFiles.Count + db.TableFiles.Count);
+            Assert.IsTrue(expectedFileCount > 0);
+            db.CreateDbBackup();
+
+            Folder testDataFolder = new Folder(Constants.TestData.TESTDATA_PATH);
+            foreach (var subfolder in testDataFolder.SubFolders)
+                if (subfolder.HasSubFolders)
+                    foreach (var subSubfolder in subfolder.SubFolders)
+                    {
+                        int actualFileCount = 0;
+                        Assert.IsTrue(subSubfolder.HasFiles);
+                        foreach (var file in subSubfolder.Files)
+                            actualFileCount++;
+                        Assert.AreEqual(expectedFileCount, actualFileCount);
+                    }
+        }
+
         #endregion
 
         #region Cleanup
@@ -291,11 +338,16 @@ namespace Tests
         [TestCleanup]
         public void RemoveDB()
         {
-            Directory.Delete(Constants.TestData.DBPATH, true);
-
-            string dbPath = new Db().DBPath;
-            if (Directory.Exists(dbPath))
-                Directory.Delete(dbPath);
+            Folder testDataFolder = new Folder(Constants.TestData.TESTDATA_PATH);
+            if (testDataFolder.HasSubFolders)
+                foreach (var subfolderPath in testDataFolder.SubFolders.Select(x => x.Path))
+                    Directory.Delete(subfolderPath, true);
+            //Directory.Delete(Constants.TestData.DBPATH, true);
+            //if (Directory.Exists(Constants.TestData.DBBACKUPPATH))
+            //    Directory.Delete(Constants.TestData.DBBACKUPPATH, true);
+            //string defaultDbPath = new Db().DBPath;
+            //if (Directory.Exists(defaultDbPath))
+            //    Directory.Delete(defaultDbPath);
         }
 
         #endregion

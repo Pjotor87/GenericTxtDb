@@ -35,6 +35,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FileTree, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Builds\_Libs_\FileTree.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
   </ItemGroup>
   <Choose>
@@ -55,6 +59,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="TestData - Copy\KeyValuePair.txt" />
+    <Content Include="TestData - Copy\List.txt" />
+    <Content Include="TestData - Copy\Table.txt" />
     <Content Include="TestData\KeyValuePair.txt" />
     <Content Include="TestData\List.txt" />
     <Content Include="TestData\Table.txt" />

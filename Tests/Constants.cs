@@ -84,6 +84,20 @@ namespace Tests
                 }
             }
 
+            internal static string DBBACKUPPATH
+            {
+                get
+                {
+                    return
+                        string.Concat(
+                            BIN_DEBUG_RELATIVE_PATH_ADJUSTMENT,
+                            TESTDATA_FOLDERNAME,
+                            Path.DirectorySeparatorChar,
+                            "Db_Backup"
+                        );
+                }
+            }
+
             internal static string TEMPFILENAME_PREFIX = "Temp_";
         }
     }
