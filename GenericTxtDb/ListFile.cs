@@ -7,15 +7,13 @@ namespace GenericTxtDb
 {
     public class ListFile
     {
-        public bool Exists { get; private set; }
         public string FilePath { get; private set; }
-        public string[] Data { get; private set; }
+        public IList<string> Data { get; private set; }
 
         public ListFile(string filePath)
         {
             this.FilePath = filePath;
-            this.Exists = File.Exists(this.FilePath);
-            this.Data = (this.Exists) ? this.Data = File.ReadAllLines(this.FilePath, Encoding.Default) : null;
+            this.Data = (File.Exists(this.FilePath)) ? this.Data = File.ReadAllLines(this.FilePath, Encoding.Default).ToList() : new List<string>();
         }
 
         virtual public void Commit()
@@ -49,7 +47,7 @@ namespace GenericTxtDb
 
         public void Add(string newEntry)
         {
-            this.Add(newEntry);
+            this.Data.Add(newEntry);
         }
 
         public void RemoveRange(IList<string> entries)
@@ -60,7 +58,7 @@ namespace GenericTxtDb
 
         public void Remove(string entry)
         {
-            this.Remove(entry);
+            this.Data.Remove(entry);
         }
     }
 }

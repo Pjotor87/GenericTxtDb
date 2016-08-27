@@ -83,7 +83,6 @@ namespace GenericTxtDb
 
         private void IdentifyFileTypeAndAddToList(string tableFileSeparator, string filePath)
         {
-            // Identify file type by looking at its data and checking the first 5 lines.
             IDictionary<FileType, bool> fileTypePossibility = new Dictionary<FileType, bool>()
             {
                 { FileType.List, true },
@@ -93,9 +92,9 @@ namespace GenericTxtDb
             
             ListFile unidentifiedFile = new ListFile(filePath);
 
-            if (unidentifiedFile.Data != null && unidentifiedFile.Data.Length > 0)
+            if (unidentifiedFile.Data != null && unidentifiedFile.Data.Count > 0)
             {
-                int linesToCheck = unidentifiedFile.Data.Length < 5 ? unidentifiedFile.Data.Length : 5;
+                int linesToCheck = unidentifiedFile.Data.Count < 5 ? unidentifiedFile.Data.Count : 5;
                 for (int i = 0; i < linesToCheck; i++)
                 {
                     if (!unidentifiedFile.Data[i].Contains('='))

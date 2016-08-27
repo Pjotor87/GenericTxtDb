@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
+using System.Linq;
 using GenericTxtDb;
 using System.Collections.Generic;
 
@@ -47,9 +48,9 @@ namespace Tests
             foreach (string filename in Constants.TestData.FILENAMES)
             {
                 ListFile file = new ListFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, filename));
-                Assert.IsTrue(file.Exists);
+                Assert.IsTrue(File.Exists(file.FilePath));
                 ListFile tempfile = new ListFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, Constants.TestData.TEMPFILENAME_PREFIX, filename));
-                Assert.IsTrue(tempfile.Exists);
+                Assert.IsTrue(File.Exists(tempfile.FilePath));
             }
         }
 
@@ -79,6 +80,37 @@ namespace Tests
             string expected = "           A third value with leading and trailing whitespace            ";
             ListFile file = new ListFile(string.Concat(Constants.TestData.DBFILEPATHS[0]));
             Assert.AreEqual(expected, file.Data[2]);
+        }
+
+        [TestMethod]
+        public void CanAddAndRemoveNewEntryInListFile()
+        {
+            string newEntry = "UnitTestEntry";
+            ListFile tempFile = new ListFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.LIST_FILENAME));
+            {// ADD ENTRY
+                Assert.IsFalse(tempFile.Data.Contains(newEntry));
+                tempFile.Add(newEntry);
+                Assert.IsTrue(tempFile.Data.Contains(newEntry));
+            }
+            {// COMMIT
+                ListFile tempFile2 = new ListFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.LIST_FILENAME));
+                Assert.IsFalse(tempFile2.Data.Contains(newEntry));
+                tempFile.Commit();
+                Assert.IsTrue(tempFile.Data.Contains(newEntry));
+                ListFile tempFile3 = new ListFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.LIST_FILENAME));
+                Assert.IsTrue(tempFile3.Data.Contains(newEntry));
+            }
+            {// REMOVE ENTRY
+                ListFile tempFile4 = new ListFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.LIST_FILENAME));
+                Assert.IsTrue(tempFile4.Data.Contains(newEntry));
+                tempFile4.Remove(newEntry);
+                Assert.IsFalse(tempFile4.Data.Contains(newEntry));
+                ListFile tempFile5 = new ListFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.LIST_FILENAME));
+                Assert.IsTrue(tempFile5.Data.Contains(newEntry));
+                tempFile4.Commit();
+                ListFile tempFile6 = new ListFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.LIST_FILENAME));
+                Assert.IsFalse(tempFile6.Data.Contains(newEntry));
+            }
         }
 
         #endregion
