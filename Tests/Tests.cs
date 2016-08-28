@@ -4,6 +4,7 @@ using System.Linq;
 using GenericTxtDb;
 using System.Collections.Generic;
 using FileTree;
+using System;
 
 namespace Tests
 {
@@ -190,9 +191,10 @@ namespace Tests
         }
 
         [TestMethod]
-        public void CanAddAndRemoveNewEntryInKeyValuePairFile()
+        public void CanAddAndRemoveNewEntryInKeyValuePairFile1()
         {
             KeyValuePair<string, string> newEntry = new KeyValuePair<string, string>("UnitTestKey", "UnitTestValue");
+            
             KeyValuePairFile tempFile = new KeyValuePairFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.KEYVALUEPAIR_FILENAME));
             {// ADD ENTRY
                 Assert.IsFalse(tempFile.KeyValuePairs.Contains(newEntry));
@@ -211,6 +213,38 @@ namespace Tests
                 KeyValuePairFile tempFile4 = new KeyValuePairFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.KEYVALUEPAIR_FILENAME));
                 Assert.IsTrue(tempFile4.KeyValuePairs.Contains(newEntry));
                 tempFile4.Remove(newEntry);
+                Assert.IsFalse(tempFile4.KeyValuePairs.Contains(newEntry));
+                KeyValuePairFile tempFile5 = new KeyValuePairFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.KEYVALUEPAIR_FILENAME));
+                Assert.IsTrue(tempFile5.KeyValuePairs.Contains(newEntry));
+                tempFile4.Commit();
+                KeyValuePairFile tempFile6 = new KeyValuePairFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.KEYVALUEPAIR_FILENAME));
+                Assert.IsFalse(tempFile6.KeyValuePairs.Contains(newEntry));
+            }
+        }
+
+        [TestMethod]
+        public void CanAddAndRemoveNewEntryInKeyValuePairFile2()
+        {
+            KeyValuePair<string, string> newEntry = new KeyValuePair<string, string>("UnitTestKey", string.Empty);
+
+            KeyValuePairFile tempFile = new KeyValuePairFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.KEYVALUEPAIR_FILENAME));
+            {// ADD ENTRY
+                Assert.IsFalse(tempFile.KeyValuePairs.Contains(newEntry));
+                tempFile.Add(newEntry.Key);
+                Assert.IsTrue(tempFile.KeyValuePairs.Contains(newEntry));
+            }
+            {// COMMIT
+                KeyValuePairFile tempFile2 = new KeyValuePairFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.KEYVALUEPAIR_FILENAME));
+                Assert.IsFalse(tempFile2.KeyValuePairs.Contains(newEntry));
+                tempFile.Commit();
+                Assert.IsTrue(tempFile.KeyValuePairs.Contains(newEntry));
+                KeyValuePairFile tempFile3 = new KeyValuePairFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.KEYVALUEPAIR_FILENAME));
+                Assert.IsTrue(tempFile3.KeyValuePairs.Contains(newEntry));
+            }
+            {// REMOVE ENTRY
+                KeyValuePairFile tempFile4 = new KeyValuePairFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.KEYVALUEPAIR_FILENAME));
+                Assert.IsTrue(tempFile4.KeyValuePairs.Contains(newEntry));
+                tempFile4.Remove(newEntry.Key);
                 Assert.IsFalse(tempFile4.KeyValuePairs.Contains(newEntry));
                 KeyValuePairFile tempFile5 = new KeyValuePairFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.KEYVALUEPAIR_FILENAME));
                 Assert.IsTrue(tempFile5.KeyValuePairs.Contains(newEntry));
@@ -294,19 +328,25 @@ namespace Tests
             Db db = new Db(Constants.TestData.DBPATH);
             int expectedFileCount = (db.ListFiles.Count + db.KeyValuePairFiles.Count + db.TableFiles.Count);
             Assert.IsTrue(expectedFileCount > 0);
+
             db.CreateDbBackup(Constants.TestData.DBBACKUPPATH);
+
             Assert.IsTrue(Directory.Exists(Constants.TestData.DBBACKUPPATH));
             Folder folder = new Folder(Constants.TestData.DBBACKUPPATH);
             Assert.IsTrue(folder.HasSubFolders);
             int expectedFolderCount = 1;
             Assert.AreEqual(expectedFolderCount, folder.SubFolders.Count);
             int actualFileCount = 0;
+            bool foundBackupsFolderMaybe = false;
             foreach (var subfolder in folder.SubFolders)
             {
-                Assert.IsTrue(subfolder.HasFiles);
+                if (subfolder.HasFiles)
+                    foundBackupsFolderMaybe = true;
+                Assert.IsTrue(foundBackupsFolderMaybe);
                 foreach (var file in subfolder.Files)
                     actualFileCount++;
             }
+            Assert.IsTrue(foundBackupsFolderMaybe);
             Assert.AreEqual(expectedFileCount, actualFileCount);
         }
 
@@ -316,19 +356,82 @@ namespace Tests
             Db db = new Db(Constants.TestData.DBPATH);
             int expectedFileCount = (db.ListFiles.Count + db.KeyValuePairFiles.Count + db.TableFiles.Count);
             Assert.IsTrue(expectedFileCount > 0);
+
             db.CreateDbBackup();
 
             Folder testDataFolder = new Folder(Constants.TestData.TESTDATA_PATH);
+            bool foundBackupsFolderMaybe = false;
             foreach (var subfolder in testDataFolder.SubFolders)
                 if (subfolder.HasSubFolders)
                     foreach (var subSubfolder in subfolder.SubFolders)
                     {
                         int actualFileCount = 0;
-                        Assert.IsTrue(subSubfolder.HasFiles);
+                        if (subSubfolder.HasFiles)
+                            foundBackupsFolderMaybe = true;
+                        Assert.IsTrue(foundBackupsFolderMaybe);
                         foreach (var file in subSubfolder.Files)
                             actualFileCount++;
                         Assert.AreEqual(expectedFileCount, actualFileCount);
                     }
+            Assert.IsTrue(foundBackupsFolderMaybe);
+        }
+
+        [TestMethod]
+        public void CanCreateDbBackupWhenEnvironmentCurrentDirectoryChanged()
+        {
+            string currentDirectory = Environment.CurrentDirectory;
+            try
+            {
+                Assert.IsTrue(Directory.Exists(Constants.TestData.TESTDATA_PATH));
+                string environmentChangedDirectory = string.Concat(Constants.TestData.TESTDATA_PATH, Path.DirectorySeparatorChar, "EnvironmentChangedDirectory");
+                if (!Directory.Exists(environmentChangedDirectory))
+                    Directory.CreateDirectory(environmentChangedDirectory);
+                Assert.IsTrue(Directory.Exists(environmentChangedDirectory));
+
+                string environmentChangedDbDirectory = string.Concat(environmentChangedDirectory, Path.DirectorySeparatorChar, Constants.TestData.DBNAME);
+                if (!Directory.Exists(environmentChangedDbDirectory))
+                    Directory.CreateDirectory(environmentChangedDbDirectory);
+                Assert.IsTrue(Directory.Exists(environmentChangedDbDirectory));
+                
+                foreach (string testdataFilepath in Constants.TestData.FILEPATHS)
+                    File.Copy(testdataFilepath, string.Concat(environmentChangedDbDirectory, Path.DirectorySeparatorChar, Path.GetFileName(testdataFilepath)));
+                Assert.IsTrue(new Folder(environmentChangedDbDirectory)
+                    .Files.Count() == Constants.TestData.FILEPATHS.Length);
+
+                Environment.CurrentDirectory = environmentChangedDirectory;
+
+                Db db = new Db();
+                string expectedDbPath = Path.GetFullPath(environmentChangedDbDirectory);
+                Assert.AreEqual(expectedDbPath, db.DBPath);
+
+                int expectedFileCount = (db.ListFiles.Count + db.KeyValuePairFiles.Count + db.TableFiles.Count);
+                Assert.IsTrue(expectedFileCount > 0);
+
+                db.CreateDbBackup();
+                Folder testDataFolder = new Folder(Environment.CurrentDirectory);
+                bool foundBackupsFolderMaybe = false;
+                foreach (var subfolder in testDataFolder.SubFolders)
+                    if (subfolder.HasSubFolders)
+                        foreach (var subSubfolder in subfolder.SubFolders)
+                        {
+                            int actualFileCount = 0;
+                            if (subSubfolder.HasFiles)
+                                foundBackupsFolderMaybe = true;
+                            Assert.IsTrue(foundBackupsFolderMaybe);
+                            foreach (var file in subSubfolder.Files)
+                                actualFileCount++;
+                            Assert.AreEqual(expectedFileCount, actualFileCount);
+                        }
+                Assert.IsTrue(foundBackupsFolderMaybe);
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(string.Concat(ex.Message, ex.StackTrace));
+            }
+            finally
+            {
+                Environment.CurrentDirectory = currentDirectory;
+            }
         }
 
         #endregion

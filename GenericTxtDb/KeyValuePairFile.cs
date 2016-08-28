@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace GenericTxtDb
@@ -91,6 +92,11 @@ namespace GenericTxtDb
                 this.Add(newEntry);
         }
 
+        public override void Add(string newEntry)
+        {
+            this.Add(new string[] { newEntry, string.Empty });
+        }
+
         /// <param name="newEntry">Array with two values. First value is key. Second value is value.</param>
         public void Add(string[] newEntry)
         {
@@ -102,7 +108,8 @@ namespace GenericTxtDb
 
         public void Add(KeyValuePair<string, string> newEntry)
         {
-            if (!string.IsNullOrEmpty(newEntry.Key) && !string.IsNullOrEmpty(newEntry.Value))
+            if (!string.IsNullOrEmpty(newEntry.Key) && 
+                string.IsNullOrEmpty(this.KeyValuePairs.Where(x => x.Key == newEntry.Key).SingleOrDefault().Key))
                 this.KeyValuePairs.Add(newEntry);
         }
 
@@ -118,6 +125,11 @@ namespace GenericTxtDb
                 this.Remove(entry);
         }
 
+        public override void Remove(string entry)
+        {
+            this.Remove(new string[] { entry, string.Empty });
+        }
+
         /// <param name="newEntry">Array with two values. First value is key. Second value is value.</param>
         public void Remove(string[] entry)
         {
@@ -129,7 +141,7 @@ namespace GenericTxtDb
 
         public void Remove(KeyValuePair<string, string> entry)
         {
-            if (!string.IsNullOrEmpty(entry.Key) && !string.IsNullOrEmpty(entry.Value))
+            if (!string.IsNullOrEmpty(entry.Key))
                 this.KeyValuePairs.Remove(entry);
         }
     }

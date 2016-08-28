@@ -45,7 +45,7 @@ namespace GenericTxtDb
                 this.Add(newEntry);
         }
 
-        public void Add(string newEntry)
+        public virtual void Add(string newEntry)
         {
             this.Data.Add(newEntry);
         }
@@ -56,7 +56,7 @@ namespace GenericTxtDb
                 this.Remove(entry);
         }
 
-        public void Remove(string entry)
+        public virtual void Remove(string entry)
         {
             this.Data.Remove(entry);
         }

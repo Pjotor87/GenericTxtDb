@@ -17,12 +17,12 @@ namespace GenericTxtDb
 
         public Db()
         {
-            this.DbFactory("Db", string.Empty, false);
+            this.DbFactory(string.Concat(Environment.CurrentDirectory, Path.DirectorySeparatorChar, "Db"), string.Empty, false);
         }
 
         public Db(bool tryInitialize)
         {
-            this.DbFactory("Db", string.Empty, tryInitialize);
+            this.DbFactory(string.Concat(Environment.CurrentDirectory, Path.DirectorySeparatorChar, "Db"), string.Empty, tryInitialize);
         }
 
         public Db(string dbPath)
