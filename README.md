@@ -4,7 +4,7 @@ A tiny C# library for working with .txt files as a database. Useful for most lig
 The database this library interacts with is:
 
 - a directory somewhere on the filesystem.
-- .txt files at the root level of that directory.
+- with nothing but .txt files at the root level of that directory.
 
 How to
 ------
