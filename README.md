@@ -1,10 +1,10 @@
 # GenericTxtDb
 A tiny C# library for working with .txt files as a database. Useful for most lightweight windows apps.
 
-This library can be used to interact with .txt files as a database.
-The database this library interacts with is
-- a directory somewhere on the filesystem.
-- .txt files at the root level of that directory.
+The database this library interacts with is:
+
+- A directory somewhere on the filesystem
+- with nothing but .txt files at the root level of that directory.
 
 How to
 ------
