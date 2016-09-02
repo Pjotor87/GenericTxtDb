@@ -47,5 +47,33 @@ namespace GenericTxtDb
             this.SetData(commitData);
             base.Commit();
         }
+
+        public IList<string> GetRowByKey(string key)
+        {
+            return this.TableRows.Where(x => x[0] == key).SingleOrDefault();
+        }
+
+        public bool KeyExists(string key)
+        {
+            return this.GetRowByKey(key) != null;
+        }
+
+        public override void Add(string newEntry)
+        {
+            throw new NotImplementedException();
+            base.Add(newEntry);
+        }
+
+        public void Add(string[] newEntry)
+        {
+            if (!KeyExists(newEntry[0]))
+                this.TableRows.Add(newEntry);
+        }
+
+        public override void Remove(string key)
+        {
+            if (KeyExists(key))
+                this.TableRows.Remove(GetRowByKey(key));
+        }
     }
 }

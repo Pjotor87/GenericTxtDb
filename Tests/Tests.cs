@@ -284,6 +284,39 @@ namespace Tests
                 Assert.AreEqual(expectedCellValues[i], file.TableRows[1][i]);
         }
 
+        [TestMethod]
+        public void CanAddAndRemoveNewEntryInTableFile()
+        {
+            string[] newEntry = new string[] { "UnitTestKey", "UnitTestValue1", "UnitTestValue2" };
+
+            TableFile tempFile = new TableFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.TABLE_FILENAME));
+            {// ADD ENTRY
+                Assert.IsFalse(tempFile.KeyExists(newEntry[0]));
+                tempFile.Add(newEntry);
+                Assert.IsTrue(tempFile.KeyExists(newEntry[0]));
+            }
+            {// COMMIT
+                TableFile tempFile2 = new TableFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.TABLE_FILENAME));
+                Assert.IsFalse(tempFile2.KeyExists(newEntry[0]));
+                tempFile.Commit();
+                Assert.IsTrue(tempFile.KeyExists(newEntry[0]));
+                TableFile tempFile3 = new TableFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.TABLE_FILENAME));
+                Assert.IsTrue(tempFile3.KeyExists(newEntry[0]));
+                Assert.IsTrue(tempFile3.Data.Contains(string.Concat(newEntry[0], "|!|", newEntry[1], "|!|", newEntry[2], "|!|")));
+            }
+            {// REMOVE ENTRY
+                TableFile tempFile4 = new TableFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.TABLE_FILENAME));
+                Assert.IsTrue(tempFile4.KeyExists(newEntry[0]));
+                tempFile4.Remove(newEntry[0]);
+                Assert.IsFalse(tempFile4.KeyExists(newEntry[0]));
+                TableFile tempFile5 = new TableFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.TABLE_FILENAME));
+                Assert.IsTrue(tempFile5.KeyExists(newEntry[0]));
+                tempFile4.Commit();
+                TableFile tempFile6 = new TableFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.TABLE_FILENAME));
+                Assert.IsFalse(tempFile6.KeyExists(newEntry[0]));
+            }
+        }
+
         #endregion
 
         #region Db
