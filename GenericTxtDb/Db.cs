@@ -136,5 +136,20 @@ namespace GenericTxtDb
                 )
             );
         }
+
+        public ListFile GetListFile(string filename)
+        {
+            return this.ListFiles.Where(x => x.FilePath.EndsWith(string.Concat(filename, ".txt"))).SingleOrDefault();
+        }
+
+        public KeyValuePairFile GetKeyValuePairFile(string filename)
+        {
+            return this.KeyValuePairFiles.Where(x => x.FilePath.EndsWith(string.Concat(filename, ".txt"))).SingleOrDefault();
+        }
+
+        public TableFile GetTableFile(string filename)
+        {
+            return this.TableFiles.Where(x => x.FilePath.EndsWith(string.Concat(filename, ".txt"))).SingleOrDefault();
+        }
     }
 }
