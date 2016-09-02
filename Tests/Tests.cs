@@ -302,7 +302,7 @@ namespace Tests
                 Assert.IsTrue(tempFile.KeyExists(newEntry[0]));
                 TableFile tempFile3 = new TableFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.TABLE_FILENAME));
                 Assert.IsTrue(tempFile3.KeyExists(newEntry[0]));
-                Assert.IsTrue(tempFile3.Data.Contains(string.Concat(newEntry[0], "|!|", newEntry[1], "|!|", newEntry[2], "|!|")));
+                Assert.IsTrue(tempFile3.Data.Contains(string.Concat(newEntry[0], "|!|", newEntry[1], "|!|", newEntry[2])));
             }
             {// REMOVE ENTRY
                 TableFile tempFile4 = new TableFile(string.Concat(Constants.TestData.DBPATH, Path.DirectorySeparatorChar, Constants.TestData.TEMPFILENAME_PREFIX, Constants.TestData.TABLE_FILENAME));

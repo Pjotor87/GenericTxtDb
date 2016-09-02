@@ -40,7 +40,11 @@ namespace GenericTxtDb
             {
                 tableFileBuilder.Clear();
                 for (int j = 0; j < TableRows[i].Count; j++)
-                    tableFileBuilder.AppendFormat("{0}{1}", this.TableRows[i][j], j < this.TableRows[i].Count ? this.Separator : string.Empty);
+                    tableFileBuilder.AppendFormat(
+                        "{0}{1}", 
+                        this.TableRows[i][j], 
+                        (j + 1) < this.TableRows[i].Count ? this.Separator : string.Empty
+                    );
                 commitData[i] = tableFileBuilder.ToString();
             }
 
