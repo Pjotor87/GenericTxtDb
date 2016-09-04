@@ -13,7 +13,7 @@ namespace GenericTxtDb
         public ListFile(string filePath)
         {
             this.FilePath = filePath;
-            this.Data = (File.Exists(this.FilePath)) ? this.Data = File.ReadAllLines(this.FilePath, Encoding.Default).ToList() : new List<string>();
+            this.Data = (File.Exists(this.FilePath)) ? File.ReadAllLines(this.FilePath, Encoding.Default).ToList() : new List<string>();
         }
 
         virtual public void Commit()

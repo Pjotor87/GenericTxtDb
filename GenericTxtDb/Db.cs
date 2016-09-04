@@ -124,7 +124,6 @@ namespace GenericTxtDb
 
         public void CreateDbBackup(string backupDirectoryPath)
         {
-            string x = Path.GetDirectoryName(backupDirectoryPath);
             new Microsoft.VisualBasic.Devices.Computer().FileSystem.CopyDirectory(
                 this.DBPath,
                 string.Concat(
