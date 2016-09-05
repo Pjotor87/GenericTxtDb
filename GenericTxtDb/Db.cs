@@ -14,38 +14,60 @@ namespace GenericTxtDb
         public IList<ListFile> ListFiles { get; set; }
         public IList<KeyValuePairFile> KeyValuePairFiles { get; set; }
         public IList<TableFile> TableFiles { get; set; }
+        public string DbBackupDirectoryName { get; set; }
+        public IList<DateTime> DbBackups { get; set; }
 
         public Db()
         {
-            this.DbFactory(string.Concat(Environment.CurrentDirectory, Path.DirectorySeparatorChar, "Db"), string.Empty, false);
+            this.DbFactory(string.Concat(Environment.CurrentDirectory, Path.DirectorySeparatorChar, "Db"), string.Empty, string.Empty, false);
         }
 
         public Db(bool tryInitialize)
         {
-            this.DbFactory(string.Concat(Environment.CurrentDirectory, Path.DirectorySeparatorChar, "Db"), string.Empty, tryInitialize);
+            this.DbFactory(string.Concat(Environment.CurrentDirectory, Path.DirectorySeparatorChar, "Db"), string.Empty, string.Empty, tryInitialize);
+        }
+
+        public Db(bool tryInitialize, string dbBackupDirectoryName)
+        {
+            this.DbFactory(string.Concat(Environment.CurrentDirectory, Path.DirectorySeparatorChar, "Db"), dbBackupDirectoryName, string.Empty, tryInitialize);
         }
 
         public Db(string dbPath)
         {
-            this.DbFactory(dbPath, string.Empty, false);
+            this.DbFactory(dbPath, string.Empty, string.Empty, false);
         }
 
         public Db(string dbPath, bool tryInitialize)
         {
-            this.DbFactory(dbPath, string.Empty, tryInitialize);
+            this.DbFactory(dbPath, string.Empty, string.Empty, tryInitialize);
+        }
+
+        public Db(string dbPath, bool tryInitialize, string dbBackupDirectoryName)
+        {
+            this.DbFactory(dbPath, dbBackupDirectoryName, string.Empty, tryInitialize);
         }
 
         public Db(string dbPath, string tableFileSeparator)
         {
-            this.DbFactory(dbPath, tableFileSeparator, false);
+            this.DbFactory(dbPath, string.Empty, tableFileSeparator, false);
+        }
+        
+        public Db(string dbPath, string dbBackupDirectoryName, string tableFileSeparator)
+        {
+            this.DbFactory(dbPath, dbBackupDirectoryName, tableFileSeparator, false);
         }
 
         public Db(string dbPath, string tableFileSeparator, bool tryInitialize)
         {
-            this.DbFactory(dbPath, tableFileSeparator, tryInitialize);
+            this.DbFactory(dbPath, string.Empty, tableFileSeparator, tryInitialize);
         }
 
-        private void DbFactory(string dbPath, string tableFileSeparator, bool tryInitialize)
+        public Db(string dbPath, string dbBackupDirectoryName, string tableFileSeparator, bool tryInitialize)
+        {
+            this.DbFactory(dbPath, dbBackupDirectoryName, tableFileSeparator, tryInitialize);
+        }
+
+        private void DbFactory(string dbPath, string dbBackupDirectoryName, string tableFileSeparator, bool tryInitialize)
         {
             if (string.IsNullOrEmpty(tableFileSeparator))
                 tableFileSeparator = "|!|";
@@ -62,6 +84,38 @@ namespace GenericTxtDb
             if (this.DbFolder != null)
                 foreach (string file in this.DbFolder.Files)
                     this.AddFile(file, IdentifyFileType(file, tableFileSeparator));
+
+            this.SetBackupDirectoryName(!string.IsNullOrEmpty(dbBackupDirectoryName) ? dbBackupDirectoryName : "DB_Backups");
+            this.DbBackups = new List<DateTime>();
+            if (this.DbFolder != null)
+            {
+                Folder parentFolder = this.DbFolder.ParentFolder;
+                ICollection<Folder> parentFolderSubFolders = parentFolder.SubFolders;
+                Folder backupsFolder = parentFolderSubFolders.Where(x => x.Name == this.DbBackupDirectoryName).SingleOrDefault();
+
+                if (backupsFolder != null && backupsFolder.HasSubFolders)
+                    foreach (Folder backup in backupsFolder.SubFolders)
+                    {
+                        string dateTime = backup.Name.Substring(backup.Name.LastIndexOf("_-_") + "_-_".Length);
+                        string date = dateTime.Split('_')[0];
+                        string time = dateTime.Split('_')[1];
+                        this.DbBackups.Add(
+                            new DateTime(
+                                Convert.ToInt32(date.Split('-')[0]),
+                                Convert.ToInt32(date.Split('-')[1]),
+                                Convert.ToInt32(date.Split('-')[2]),
+                                Convert.ToInt32(time.Split('-')[0]),
+                                Convert.ToInt32(time.Split('-')[1]),
+                                Convert.ToInt32(time.Split('-')[2])
+                            )
+                        );
+                    }
+            }
+        }
+
+        public void SetBackupDirectoryName(string dbBackupDirectoryName)
+        {
+            this.DbBackupDirectoryName = dbBackupDirectoryName;
         }
 
         private void TryInitialize()
@@ -141,21 +195,22 @@ namespace GenericTxtDb
 
         public void CreateDbBackup()
         {
-            CreateDbBackup(string.Concat(Path.GetDirectoryName(this.DBPath), Path.DirectorySeparatorChar, "DB_Backups"));
-        }
-
-        public void CreateDbBackup(string backupDirectoryPath)
-        {
+            DateTime now = DateTime.Now;
             new Microsoft.VisualBasic.Devices.Computer().FileSystem.CopyDirectory(
                 this.DBPath,
-                string.Concat(
-                    backupDirectoryPath, 
-                    Path.DirectorySeparatorChar, 
-                    Path.GetFileNameWithoutExtension(this.DBPath), 
-                    "_-_", 
-                    DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss")
+                Path.Combine(
+                    Path.Combine(
+                        Path.GetDirectoryName(this.DBPath), 
+                        this.DbBackupDirectoryName
+                    ),
+                    string.Concat(
+                        Path.GetFileNameWithoutExtension(this.DBPath),
+                        "_-_",
+                        now.ToString("yyyy-MM-dd_hh-mm-ss")
+                    )
                 )
             );
+            this.DbBackups.Add(now);
         }
 
         public ListFile GetListFile(string filenameWithoutExtension)

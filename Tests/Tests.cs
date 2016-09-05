@@ -362,7 +362,8 @@ namespace Tests
             int expectedFileCount = (db.ListFiles.Count + db.KeyValuePairFiles.Count + db.TableFiles.Count);
             Assert.IsTrue(expectedFileCount > 0);
 
-            db.CreateDbBackup(Constants.TestData.DBBACKUPPATH);
+            db.SetBackupDirectoryName(Path.GetFileName(Constants.TestData.DBBACKUPPATH));
+            db.CreateDbBackup();
 
             Assert.IsTrue(Directory.Exists(Constants.TestData.DBBACKUPPATH));
             Folder folder = new Folder(Constants.TestData.DBBACKUPPATH);
@@ -465,6 +466,18 @@ namespace Tests
             {
                 Environment.CurrentDirectory = currentDirectory;
             }
+        }
+
+        [TestMethod]
+        public void DbBackupsFound()
+        {
+            Db db = new Db(Constants.TestData.DBPATH);
+            Assert.IsNotNull(db.DbBackups);
+            Assert.IsTrue(db.ListFiles.Count > 0 || db.KeyValuePairFiles.Count > 0 || db.TableFiles.Count > 0);
+            db.CreateDbBackup();
+            Assert.IsTrue(db.DbBackups.Count > 0);
+            db = new Db(Constants.TestData.DBPATH);
+            Assert.IsTrue(db.DbBackups.Count > 0);
         }
 
         [TestMethod]
@@ -577,6 +590,13 @@ namespace Tests
                 Assert.IsTrue(db.Exists(Path.GetFileNameWithoutExtension(tempFilename2)));
                 Assert.IsFalse(db.Exists(Path.GetFileNameWithoutExtension(tempFilename3)));
             }
+        }
+
+        [TestMethod]
+        public void CanClearDbBackups()
+        {
+            Db db = new Db(Constants.TestData.DBPATH);
+            throw new NotImplementedException();
         }
 
         #endregion

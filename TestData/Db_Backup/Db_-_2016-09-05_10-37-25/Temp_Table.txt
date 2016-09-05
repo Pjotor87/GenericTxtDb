@@ -1,0 +1,2 @@
+﻿"FirstRowValue1"|!|"FirstRowValue2"|!|"FirstRowValue3"
+"SecondRowValue1"|!|"SecondRowValue2"|!|"SecondRowValue3"
