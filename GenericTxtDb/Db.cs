@@ -190,7 +190,10 @@ namespace GenericTxtDb
         public void AddFileByFilename(string filename, FileType fileType)
         {
             this.AddFile(
-                !filename.StartsWith(this.DBPath) ? Path.Combine(this.DBPath, filename) : filename,
+                Path.ChangeExtension(
+                    !filename.StartsWith(this.DBPath) ? Path.Combine(this.DBPath, filename) : filename,
+                    "txt"
+                ),
                 fileType
             );
         }
