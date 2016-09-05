@@ -14,8 +14,10 @@ namespace GenericTxtDb
         public IList<ListFile> ListFiles { get; set; }
         public IList<KeyValuePairFile> KeyValuePairFiles { get; set; }
         public IList<TableFile> TableFiles { get; set; }
-        public string DbBackupDirectoryName { get; set; }
-        public IList<DateTime> DbBackups { get; set; }
+
+        private Folder DbBackupFolder { get; set; }
+        public string DbBackupFolderName { get; private set; }
+        public IList<DateTime> DbBackups { get; private set; }
 
         public Db()
         {
@@ -89,12 +91,10 @@ namespace GenericTxtDb
             this.DbBackups = new List<DateTime>();
             if (this.DbFolder != null)
             {
-                Folder parentFolder = this.DbFolder.ParentFolder;
-                ICollection<Folder> parentFolderSubFolders = parentFolder.SubFolders;
-                Folder backupsFolder = parentFolderSubFolders.Where(x => x.Name == this.DbBackupDirectoryName).SingleOrDefault();
+                this.DbBackupFolder = this.DbFolder.ParentFolder.SubFolders.Where(x => x.Name == this.DbBackupFolderName).SingleOrDefault();
 
-                if (backupsFolder != null && backupsFolder.HasSubFolders)
-                    foreach (Folder backup in backupsFolder.SubFolders)
+                if (this.DbBackupFolder != null && this.DbBackupFolder.HasSubFolders)
+                    foreach (Folder backup in this.DbBackupFolder.SubFolders)
                     {
                         string dateTime = backup.Name.Substring(backup.Name.LastIndexOf("_-_") + "_-_".Length);
                         string date = dateTime.Split('_')[0];
@@ -115,7 +115,7 @@ namespace GenericTxtDb
 
         public void SetBackupDirectoryName(string dbBackupDirectoryName)
         {
-            this.DbBackupDirectoryName = dbBackupDirectoryName;
+            this.DbBackupFolderName = dbBackupDirectoryName;
         }
 
         private void TryInitialize()
@@ -201,7 +201,7 @@ namespace GenericTxtDb
                 Path.Combine(
                     Path.Combine(
                         Path.GetDirectoryName(this.DBPath), 
-                        this.DbBackupDirectoryName
+                        this.DbBackupFolderName
                     ),
                     string.Concat(
                         Path.GetFileNameWithoutExtension(this.DBPath),
@@ -211,6 +211,25 @@ namespace GenericTxtDb
                 )
             );
             this.DbBackups.Add(now);
+        }
+
+        public void DeleteDbBackup(DateTime dateTime)
+        {
+            if (this.DbBackups.Contains(dateTime))
+            {
+                string backupFolderName = 
+                    string.Concat(
+                        Path.GetFileNameWithoutExtension(this.DBPath),
+                        "_-_",
+                        dateTime.ToString("yyyy-MM-dd_hh-mm-ss")
+                    );
+                string backupPath = this.DbBackupFolder.SubFolders.Where(x => x.Name == backupFolderName).SingleOrDefault().Path;
+                if (Directory.Exists(backupPath))
+                {
+                    Directory.Delete(backupPath, true);
+                    this.DbBackups.Remove(dateTime);
+                }
+            }
         }
 
         public ListFile GetListFile(string filenameWithoutExtension)

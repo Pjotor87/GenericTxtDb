@@ -593,10 +593,19 @@ namespace Tests
         }
 
         [TestMethod]
-        public void CanClearDbBackups()
+        public void CanDeleteDbBackup()
         {
             Db db = new Db(Constants.TestData.DBPATH);
-            throw new NotImplementedException();
+            int dbBackupsCountBeforeCreateBackup = db.DbBackups.Count;
+            db.CreateDbBackup();
+            int dbBackupsCountAfterCreateBackup = db.DbBackups.Count;
+            Assert.IsTrue(dbBackupsCountAfterCreateBackup == (dbBackupsCountBeforeCreateBackup + 1));
+            db = new Db(Constants.TestData.DBPATH);
+            Assert.AreEqual(dbBackupsCountAfterCreateBackup, db.DbBackups.Count);
+            db.DeleteDbBackup(db.DbBackups[0]);
+            Assert.IsTrue(db.DbBackups.Count == dbBackupsCountBeforeCreateBackup);
+            db = new Db(Constants.TestData.DBPATH);
+            Assert.IsTrue(db.DbBackups.Count == dbBackupsCountBeforeCreateBackup);
         }
 
         #endregion
