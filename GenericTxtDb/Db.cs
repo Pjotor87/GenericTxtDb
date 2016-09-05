@@ -61,7 +61,7 @@ namespace GenericTxtDb
             this.TableFiles = new List<TableFile>();
             if (this.DbFolder != null)
                 foreach (string file in this.DbFolder.Files)
-                    IdentifyFileTypeAndAddToList(tableFileSeparator, file);
+                    this.AddFile(file, IdentifyFileType(file, tableFileSeparator));
         }
 
         private void TryInitialize()
@@ -81,7 +81,7 @@ namespace GenericTxtDb
             }
         }
 
-        private void IdentifyFileTypeAndAddToList(string tableFileSeparator, string filePath)
+        public FileType IdentifyFileType(string filePath, string tableFileSeparator)
         {
             IDictionary<FileType, bool> fileTypePossibility = new Dictionary<FileType, bool>()
             {
@@ -109,12 +109,34 @@ namespace GenericTxtDb
                 fileTypePossibility[FileType.Table] = false;
             }
 
-            if (fileTypePossibility[FileType.Table])
-                this.TableFiles.Add(new TableFile(filePath));
-            else if (fileTypePossibility[FileType.KeyValuePair])
-                this.KeyValuePairFiles.Add(new KeyValuePairFile(filePath));
-            else
-                this.ListFiles.Add(unidentifiedFile);
+            return
+                (fileTypePossibility[FileType.Table]) ? FileType.Table :
+                (fileTypePossibility[FileType.KeyValuePair]) ? FileType.KeyValuePair :
+                FileType.List;
+        }
+
+        private void AddFile(string filePath, FileType fileType)
+        {
+            switch (fileType)
+            {
+                case FileType.List:
+                    this.ListFiles.Add(new ListFile(filePath));
+                    break;
+                case FileType.KeyValuePair:
+                    this.KeyValuePairFiles.Add(new KeyValuePairFile(filePath));
+                    break;
+                case FileType.Table:
+                    this.TableFiles.Add(new TableFile(filePath));
+                    break;
+            }
+        }
+
+        public void AddFileByFilename(string filename, FileType fileType)
+        {
+            this.AddFile(
+                !filename.StartsWith(this.DBPath) ? Path.Combine(this.DBPath, filename) : filename,
+                fileType
+            );
         }
 
         public void CreateDbBackup()
@@ -136,19 +158,27 @@ namespace GenericTxtDb
             );
         }
 
-        public ListFile GetListFile(string filename)
+        public ListFile GetListFile(string filenameWithoutExtension)
         {
-            return this.ListFiles.Where(x => x.FilePath.EndsWith(string.Concat(filename, ".txt"))).SingleOrDefault();
+            return this.ListFiles.Where(x => x.FilePath.EndsWith(string.Concat(filenameWithoutExtension, ".txt"))).SingleOrDefault();
         }
 
-        public KeyValuePairFile GetKeyValuePairFile(string filename)
+        public KeyValuePairFile GetKeyValuePairFile(string filenameWithoutExtension)
         {
-            return this.KeyValuePairFiles.Where(x => x.FilePath.EndsWith(string.Concat(filename, ".txt"))).SingleOrDefault();
+            return this.KeyValuePairFiles.Where(x => x.FilePath.EndsWith(string.Concat(filenameWithoutExtension, ".txt"))).SingleOrDefault();
         }
 
-        public TableFile GetTableFile(string filename)
+        public TableFile GetTableFile(string filenameWithoutExtension)
         {
-            return this.TableFiles.Where(x => x.FilePath.EndsWith(string.Concat(filename, ".txt"))).SingleOrDefault();
+            return this.TableFiles.Where(x => x.FilePath.EndsWith(string.Concat(filenameWithoutExtension, ".txt"))).SingleOrDefault();
+        }
+
+        public bool Exists(string filenameWithoutExtension)
+        {
+            return
+                this.GetListFile(filenameWithoutExtension) != null ||
+                this.GetKeyValuePairFile(filenameWithoutExtension) != null ||
+                this.GetTableFile(filenameWithoutExtension) != null;
         }
     }
 }

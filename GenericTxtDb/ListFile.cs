@@ -18,7 +18,12 @@ namespace GenericTxtDb
 
         virtual public void Commit()
         {
-            File.WriteAllLines(this.FilePath, this.Data.Distinct(), Encoding.Default);
+            IEnumerable<string> distinctData = this.Data.Distinct();
+            File.WriteAllLines(this.FilePath, distinctData, Encoding.Default);
+            if (distinctData == null || 
+                distinctData.Count() == 0 || 
+                (distinctData.Count() == 1 && string.IsNullOrEmpty(distinctData.First())))
+                File.Delete(this.FilePath);
         }
 
         protected string TrimFirstAndLastQuotations(string str)

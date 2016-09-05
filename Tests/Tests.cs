@@ -467,6 +467,118 @@ namespace Tests
             }
         }
 
+        [TestMethod]
+        public void CanCommitNewFile()
+        {
+            {// List
+                Db db = new Db(Constants.TestData.DBPATH);
+                string tempFilename1 = "FileThatDoesNotExist1.txt";
+                string tempFilename2 = "FileThatDoesNotExist2.txt";
+                string tempFilename3 = "FileThatDoesNotExist3.txt";
+                Assert.IsFalse(db.Exists(Path.GetFileNameWithoutExtension(tempFilename1)));
+                Assert.IsFalse(db.Exists(Path.GetFileNameWithoutExtension(tempFilename2)));
+                Assert.IsFalse(db.Exists(Path.GetFileNameWithoutExtension(tempFilename3)));
+                db.AddFileByFilename(tempFilename1, FileType.List);
+                db.AddFileByFilename(tempFilename2, FileType.List);
+                db.AddFileByFilename(tempFilename3, FileType.List);
+                Assert.IsTrue(db.Exists(Path.GetFileNameWithoutExtension(tempFilename1)));
+                Assert.IsTrue(db.Exists(Path.GetFileNameWithoutExtension(tempFilename2)));
+                Assert.IsTrue(db.Exists(Path.GetFileNameWithoutExtension(tempFilename3)));
+                var tempFile1 = db.GetListFile(Path.GetFileNameWithoutExtension(tempFilename1));
+                var tempFile2 = db.GetListFile(Path.GetFileNameWithoutExtension(tempFilename2));
+                var tempFile3 = db.GetListFile(Path.GetFileNameWithoutExtension(tempFilename3));
+                Assert.IsNotNull(tempFile1);
+                Assert.IsNotNull(tempFile2);
+                Assert.IsNotNull(tempFile3);
+                Assert.IsTrue(tempFile1.Data.Count == 0);
+                Assert.IsTrue(tempFile2.Data.Count == 0);
+                Assert.IsTrue(tempFile3.Data.Count == 0);
+
+                tempFile1.Commit();
+                tempFile2.Add("Entry");
+                tempFile2.Commit();
+                tempFile3.Add(string.Empty);
+                tempFile3.Commit();
+
+                db = new Db(Constants.TestData.DBPATH);
+                Assert.IsFalse(db.Exists(Path.GetFileNameWithoutExtension(tempFilename1)));
+                Assert.IsTrue(db.Exists(Path.GetFileNameWithoutExtension(tempFilename2)));
+                Assert.IsFalse(db.Exists(Path.GetFileNameWithoutExtension(tempFilename3)));
+            }
+            
+            {// Key value pair
+                Db db = new Db(Constants.TestData.DBPATH);
+                string tempFilename1 = "FileThatDoesNotExist4.txt";
+                string tempFilename2 = "FileThatDoesNotExist5.txt";
+                string tempFilename3 = "FileThatDoesNotExist6.txt";
+                Assert.IsFalse(db.Exists(Path.GetFileNameWithoutExtension(tempFilename1)));
+                Assert.IsFalse(db.Exists(Path.GetFileNameWithoutExtension(tempFilename2)));
+                Assert.IsFalse(db.Exists(Path.GetFileNameWithoutExtension(tempFilename3)));
+                db.AddFileByFilename(tempFilename1, FileType.KeyValuePair);
+                db.AddFileByFilename(tempFilename2, FileType.KeyValuePair);
+                db.AddFileByFilename(tempFilename3, FileType.KeyValuePair);
+                Assert.IsTrue(db.Exists(Path.GetFileNameWithoutExtension(tempFilename1)));
+                Assert.IsTrue(db.Exists(Path.GetFileNameWithoutExtension(tempFilename2)));
+                Assert.IsTrue(db.Exists(Path.GetFileNameWithoutExtension(tempFilename3)));
+                var tempFile1 = db.GetKeyValuePairFile(Path.GetFileNameWithoutExtension(tempFilename1));
+                var tempFile2 = db.GetKeyValuePairFile(Path.GetFileNameWithoutExtension(tempFilename2));
+                var tempFile3 = db.GetKeyValuePairFile(Path.GetFileNameWithoutExtension(tempFilename3));
+                Assert.IsNotNull(tempFile1);
+                Assert.IsNotNull(tempFile2);
+                Assert.IsNotNull(tempFile3);
+                Assert.IsTrue(tempFile1.Data.Count == 0);
+                Assert.IsTrue(tempFile2.Data.Count == 0);
+                Assert.IsTrue(tempFile3.Data.Count == 0);
+
+                tempFile1.Commit();
+                tempFile2.Add("Entry");
+                tempFile2.Commit();
+                tempFile3.Add(string.Empty);
+                tempFile3.Commit();
+
+                db = new Db(Constants.TestData.DBPATH);
+                Assert.IsFalse(db.Exists(Path.GetFileNameWithoutExtension(tempFilename1)));
+                Assert.IsTrue(db.Exists(Path.GetFileNameWithoutExtension(tempFilename2)));
+                Assert.IsFalse(db.Exists(Path.GetFileNameWithoutExtension(tempFilename3)));
+            }
+
+            {// Table
+                Db db = new Db(Constants.TestData.DBPATH);
+                string tempFilename1 = "FileThatDoesNotExist7.txt";
+                string tempFilename2 = "FileThatDoesNotExist8.txt";
+                string tempFilename3 = "FileThatDoesNotExist9.txt";
+                Assert.IsFalse(db.Exists(Path.GetFileNameWithoutExtension(tempFilename1)));
+                Assert.IsFalse(db.Exists(Path.GetFileNameWithoutExtension(tempFilename2)));
+                Assert.IsFalse(db.Exists(Path.GetFileNameWithoutExtension(tempFilename3)));
+                db.AddFileByFilename(tempFilename1, FileType.Table);
+                db.AddFileByFilename(tempFilename2, FileType.Table);
+                db.AddFileByFilename(tempFilename3, FileType.Table);
+                Assert.IsTrue(db.Exists(Path.GetFileNameWithoutExtension(tempFilename1)));
+                Assert.IsTrue(db.Exists(Path.GetFileNameWithoutExtension(tempFilename2)));
+                Assert.IsTrue(db.Exists(Path.GetFileNameWithoutExtension(tempFilename3)));
+                var tempFile1 = db.GetTableFile(Path.GetFileNameWithoutExtension(tempFilename1));
+                var tempFile2 = db.GetTableFile(Path.GetFileNameWithoutExtension(tempFilename2));
+                var tempFile3 = db.GetTableFile(Path.GetFileNameWithoutExtension(tempFilename3));
+                Assert.IsNotNull(tempFile1);
+                Assert.IsNotNull(tempFile2);
+                Assert.IsNotNull(tempFile3);
+                Assert.IsTrue(tempFile1.Data.Count == 0);
+                Assert.IsTrue(tempFile2.Data.Count == 0);
+                Assert.IsTrue(tempFile3.Data.Count == 0);
+
+                tempFile1.Commit();
+                tempFile2.Add("Entry");
+                tempFile2.Commit();
+                tempFile3.Add(string.Empty);
+                tempFile3.Commit();
+
+                db = new Db(Constants.TestData.DBPATH);
+                Assert.IsFalse(db.Exists(Path.GetFileNameWithoutExtension(tempFilename1)));
+                Assert.IsTrue(db.Exists(Path.GetFileNameWithoutExtension(tempFilename2)));
+                Assert.IsFalse(db.Exists(Path.GetFileNameWithoutExtension(tempFilename3)));
+            }
+        }
+
         #endregion
 
         #region Cleanup

@@ -64,8 +64,7 @@ namespace GenericTxtDb
 
         public override void Add(string newEntry)
         {
-            throw new NotImplementedException();
-            base.Add(newEntry);
+            this.Add(new string[] { newEntry });
         }
 
         public void Add(string[] newEntry)
