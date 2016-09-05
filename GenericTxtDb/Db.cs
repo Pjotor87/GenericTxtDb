@@ -3,6 +3,8 @@ using System.Linq;
 using FileTree;
 using System.IO;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace GenericTxtDb
 {
@@ -195,22 +197,34 @@ namespace GenericTxtDb
 
         public void CreateDbBackup()
         {
-            DateTime now = DateTime.Now;
+            this.CreateDbBackup(DateTime.Now);
+        }
+        
+        public void CreateDbBackup(DateTime now)
+        {
             new Microsoft.VisualBasic.Devices.Computer().FileSystem.CopyDirectory(
                 this.DBPath,
                 Path.Combine(
                     Path.Combine(
-                        Path.GetDirectoryName(this.DBPath), 
+                        Path.GetDirectoryName(this.DBPath),
                         this.DbBackupFolderName
                     ),
                     string.Concat(
                         Path.GetFileNameWithoutExtension(this.DBPath),
                         "_-_",
-                        now.ToString("yyyy-MM-dd_hh-mm-ss")
+                        now.ToString("yyyy-MM-dd_HH-mm-ss")
                     )
                 )
             );
             this.DbBackups.Add(now);
+        }
+
+        public void DeleteDbBackupsOlderThan(DateTime dateTime)
+        {
+            ICollection<DateTime> backupsToRemove = this.DbBackups.Where(x => x < dateTime).ToList();
+            if (backupsToRemove != null)
+                foreach (var backupToRemove in backupsToRemove)
+                    this.DeleteDbBackup(backupToRemove);
         }
 
         public void DeleteDbBackup(DateTime dateTime)
@@ -221,7 +235,7 @@ namespace GenericTxtDb
                     string.Concat(
                         Path.GetFileNameWithoutExtension(this.DBPath),
                         "_-_",
-                        dateTime.ToString("yyyy-MM-dd_hh-mm-ss")
+                        dateTime.ToString("yyyy-MM-dd_HH-mm-ss")
                     );
                 string backupPath = this.DbBackupFolder.SubFolders.Where(x => x.Name == backupFolderName).SingleOrDefault().Path;
                 if (Directory.Exists(backupPath))

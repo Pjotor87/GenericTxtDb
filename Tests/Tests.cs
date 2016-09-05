@@ -5,6 +5,8 @@ using GenericTxtDb;
 using System.Collections.Generic;
 using FileTree;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Tests
 {
@@ -608,6 +610,37 @@ namespace Tests
             Assert.IsTrue(db.DbBackups.Count == dbBackupsCountBeforeCreateBackup);
         }
 
+        [TestMethod]
+        public void CanDeleteDbBackupsOlderThan()
+        {
+            Db db = new Db(Constants.TestData.DBPATH);
+            int dbBackupsCountBeforeCreateBackup = db.DbBackups.Count;
+            Assert.AreEqual(0, dbBackupsCountBeforeCreateBackup);
+
+            DateTime now = DateTime.Now;
+            db.CreateDbBackup(now);
+            db.CreateDbBackup(now.AddSeconds(5));
+            db.CreateDbBackup(now.AddSeconds(10));
+            Assert.AreEqual(3, db.DbBackups.Count);
+            db = new Db(Constants.TestData.DBPATH);
+            Assert.AreEqual(3, db.DbBackups.Count);
+
+            db.DeleteDbBackupsOlderThan(now.AddSeconds(2));
+            Assert.AreEqual(2, db.DbBackups.Count);
+            db = new Db(Constants.TestData.DBPATH);
+            Assert.AreEqual(2, db.DbBackups.Count);
+
+            db.CreateDbBackup();
+            Assert.AreEqual(3, db.DbBackups.Count);
+            db = new Db(Constants.TestData.DBPATH);
+            Assert.AreEqual(3, db.DbBackups.Count);
+
+            db.DeleteDbBackupsOlderThan(now.AddSeconds(15));
+            Assert.AreEqual(0, db.DbBackups.Count);
+            db = new Db(Constants.TestData.DBPATH);
+            Assert.AreEqual(0, db.DbBackups.Count);
+        }
+        
         #endregion
 
         #region Cleanup
