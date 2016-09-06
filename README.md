@@ -38,3 +38,5 @@ ThirdRowFirstColumnValue|!|ThirdRowSecondColumnValue|!|ThirdRowThirdColumnValue
 ___
 
 Use Db.Commit() to write to the database.
+
+And please send me a message if you have any questions/feedback!
