@@ -251,7 +251,15 @@ namespace GenericTxtDb
 
         public ListFile GetListFile(string filenameWithoutExtension)
         {
-            return this.ListFiles.Where(x => x.FilePath.EndsWith(string.Concat(filenameWithoutExtension, ".txt"))).SingleOrDefault();
+            return 
+                this.ListFiles.Where(
+                    x => x.FilePath.EndsWith(
+                        string.Concat(
+                            filenameWithoutExtension, 
+                            ".txt"
+                        )
+                    )
+                ).FirstOrDefault();
         }
 
         public KeyValuePairFile GetKeyValuePairFile(string filenameWithoutExtension)

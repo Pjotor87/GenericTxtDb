@@ -64,6 +64,7 @@
     <Content Include="TestData - Copy\Table.txt" />
     <Content Include="TestData\KeyValuePair.txt" />
     <Content Include="TestData\List.txt" />
+    <Content Include="TestData\ListWithSingleEntry.txt" />
     <Content Include="TestData\Table.txt" />
   </ItemGroup>
   <ItemGroup>

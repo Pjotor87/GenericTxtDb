@@ -117,6 +117,27 @@ namespace Tests
             }
         }
 
+        [TestMethod]
+        public void CanIdentifyListFileWithSingleEntry()
+        {
+            ListFile file = new ListFile(string.Concat(Constants.TestData.DBFILEPATHS[3]));
+            Assert.IsNotNull(file);
+            Assert.IsNotNull(file.Data);
+            Assert.IsTrue(file.Data.Count == 1);
+            Db db = new Db(Constants.TestData.DBPATH);
+            try
+            {
+                ListFile file2 = db.GetListFile(Constants.TestData.LISTWITHSNIGLEENTRY_FILENAME.Replace(".txt", ""));
+                Assert.IsNotNull(file2);
+                Assert.IsNotNull(file2.Data);
+                Assert.IsTrue(file2.Data.Count == 1);
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(ex.Message + ex.StackTrace);
+            }
+        }
+
         #endregion
 
         #region KeyValuePair
@@ -348,9 +369,9 @@ namespace Tests
         public void DbIdentifiesFiles()
         {
             Db db = new Db(Constants.TestData.DBPATH);
-            int expectedListFiles = 2;
-            int expectedKeyValuePairFiles = 2;
-            int expectedTableFiles = 2;
+            int expectedListFiles = 2 * 2;
+            int expectedKeyValuePairFiles = 2 * 1;
+            int expectedTableFiles = 2 * 1;
             Assert.IsFalse(db.ListFiles.Count == expectedListFiles + expectedKeyValuePairFiles + expectedTableFiles);
             Assert.AreEqual(expectedListFiles, db.ListFiles.Count);
             Assert.AreEqual(expectedKeyValuePairFiles, db.KeyValuePairFiles.Count);
