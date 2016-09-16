@@ -153,7 +153,8 @@ namespace GenericTxtDb
                 int linesToCheck = unidentifiedFile.Data.Count < 5 ? unidentifiedFile.Data.Count : 5;
                 for (int i = 0; i < linesToCheck; i++)
                 {
-                    if (!unidentifiedFile.Data[i].Contains('='))
+                    if (!unidentifiedFile.Data[i].Contains('=') ||
+                        Uri.IsWellFormedUriString(unidentifiedFile.Data[i], UriKind.RelativeOrAbsolute))
                         fileTypePossibility[FileType.KeyValuePair] = false;
                     if (!unidentifiedFile.Data[i].Contains(tableFileSeparator))
                         fileTypePossibility[FileType.Table] = false;

@@ -1,0 +1,1 @@
+﻿http://www.yyy.com/path/params?first=value

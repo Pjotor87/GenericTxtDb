@@ -24,7 +24,8 @@ namespace Tests
             internal const string LIST_FILENAME = "List.txt";
             internal const string KEYVALUEPAIR_FILENAME = "KeyValuePair.txt";
             internal const string TABLE_FILENAME = "Table.txt";
-            internal const string LISTWITHSNIGLEENTRY_FILENAME = "ListWithSingleEntry.txt";
+            internal const string LISTWITHSINGLEENTRY_FILENAME = "ListWithSingleEntry.txt";
+            internal const string LISTWITHSINGLEURLENTRY_FILENAME = "ListWithSingleUrlEntry.txt";
             internal static string[] FILENAMES
             {
                 get
@@ -35,7 +36,8 @@ namespace Tests
                             LIST_FILENAME,
                             KEYVALUEPAIR_FILENAME,
                             TABLE_FILENAME,
-                            LISTWITHSNIGLEENTRY_FILENAME
+                            LISTWITHSINGLEENTRY_FILENAME,
+                            LISTWITHSINGLEURLENTRY_FILENAME
                         };
                 }
             }

@@ -127,7 +127,7 @@ namespace Tests
             Db db = new Db(Constants.TestData.DBPATH);
             try
             {
-                ListFile file2 = db.GetListFile(Constants.TestData.LISTWITHSNIGLEENTRY_FILENAME.Replace(".txt", ""));
+                ListFile file2 = db.GetListFile(Constants.TestData.LISTWITHSINGLEENTRY_FILENAME.Replace(".txt", ""));
                 Assert.IsNotNull(file2);
                 Assert.IsNotNull(file2.Data);
                 Assert.IsTrue(file2.Data.Count == 1);
@@ -136,6 +136,20 @@ namespace Tests
             {
                 Assert.Fail(ex.Message + ex.StackTrace);
             }
+        }
+
+        [TestMethod]
+        public void CanIdentifyListFileWhenEntriesAreUrlsWithParameters()
+        {
+            Db db = new Db(Constants.TestData.DBPATH);
+
+            KeyValuePairFile keyValuePairFile = db.GetKeyValuePairFile(Constants.TestData.DBFILEPATHS[4].Replace(".txt", ""));
+            Assert.IsNull(keyValuePairFile);
+
+            ListFile listFile = db.GetListFile(Constants.TestData.DBFILEPATHS[4].Replace(".txt", ""));
+            Assert.IsNotNull(listFile);
+            Assert.IsNotNull(listFile.Data);
+            Assert.IsTrue(listFile.Data.Count == 1);
         }
 
         #endregion
@@ -369,7 +383,7 @@ namespace Tests
         public void DbIdentifiesFiles()
         {
             Db db = new Db(Constants.TestData.DBPATH);
-            int expectedListFiles = 2 * 2;
+            int expectedListFiles = 2 * 3;
             int expectedKeyValuePairFiles = 2 * 1;
             int expectedTableFiles = 2 * 1;
             Assert.IsFalse(db.ListFiles.Count == expectedListFiles + expectedKeyValuePairFiles + expectedTableFiles);
